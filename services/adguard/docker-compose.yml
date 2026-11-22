@@ -1,0 +1,17 @@
+services:
+  adguardhome:
+    image: adguard/adguardhome:latest
+    container_name: adguardhome
+    restart: unless-stopped
+    volumes:
+      - ${ADGUARD_DATA}/work:/opt/adguardhome/work
+      - ${ADGUARD_DATA}/conf:/opt/adguardhome/conf
+    ports:
+      # DNS bound to SPECIFIC IPs so it never clashes with systemd-resolved (which holds 127.0.0.53:53).
+      # Queries arrive over Tailscale (and optionally the LAN); no host DNS surgery needed.
+      - "${TAILNET_IP}:53:53/udp"     # server's TAILNET ip — Tailscale DNS points here
+      - "${TAILNET_IP}:53:53/tcp"
+      - "${LAN_IP}:53:53/udp"         )
+      - "${LAN_IP}:53:53/tcp"
+      # Admin web UI: first-run setup wizard + dashboard (set admin port = 3000, set in the wizard)
+      - "3000:3000/tcp"
