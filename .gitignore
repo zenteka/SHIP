@@ -1,0 +1,23 @@
+# ── Secrets — NEVER commit ──────────────────────────────
+.env
+!.env.example
+*.secret
+*.key
+# real config files that hold secrets/hosts (ship the .example instead)
+**/umap.conf
+**/AdGuardHome.yaml
+
+# ── Service runtime data (lives on the server, not in git) ──
+**/data/
+**/db/
+**/uploads/
+**/statics/
+**/work/
+**/conf/
+*.sqlite3
+*.sqlite3-*
+*.sqlite
+
+# ── Misc ──
+*.log
+.DS_Store

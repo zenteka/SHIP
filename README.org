@@ -1,0 +1,69 @@
+#+TITLE: Sovereign Homelab
+#+OPTIONS: toc:nil num:nil
+
+A personal, self-hosted homelab: a handful of Docker services on an always-on
+server, reachable privately over a [[https://tailscale.com][Tailscale]] tailnet.
+Everything runs on my own hardware — no third-party cloud for the services below.
+
+⚠️ *This is a sanitized personal reference, not a turnkey product.* Real secrets,
+hostnames and IPs are replaced with placeholders. Copy the =.env.example= files,
+fill in your own values, and adapt to your setup.
+
+* What's here
+| Service       | What it does                                        |
+|---------------+-----------------------------------------------------|
+| AdGuard Home  | Network-wide ad / tracker DNS filtering             |
+| Vaultwarden   | Self-hosted, Bitwarden-compatible password manager  |
+| uMap + tiles  | Self-hosted maps — your pins + your own OSM tiles   |
+
+* Architecture
+- Each service is a *Docker Compose* stack on one always-on Linux server.
+- Nothing is exposed to the public internet. Access is over a *Tailscale tailnet*;
+  web apps are fronted by *Tailscale Serve* for automatic HTTPS (=*.ts.net= certs).
+- *AdGuard Home* is the tailnet's DNS resolver → every device gets filtering,
+  anywhere, with no per-device setup.
+- Service data lives on the server as bind-mounts; it is *never* committed to git.
+
+#+begin_example
+  your devices ──Tailscale──► server
+                               ├─ AdGuard Home     (DNS :53, tailnet nameserver)
+                               ├─ Vaultwarden      (Tailscale Serve → HTTPS)
+                               └─ uMap + tileserver (nginx → Tailscale Serve → HTTPS)
+#+end_example
+
+* Layout
+#+begin_example
+  homelab/
+  ├── README.org
+  ├── .gitignore               # keeps secrets + runtime data out of git
+  ├── .env.example             # global placeholders (TS_HOST, TAILNET_IP, LAN_IP)
+  └── services/
+      ├── adguard/     docker-compose.yml · README
+      ├── vaultwarden/ docker-compose.yml · .env.example · README
+      └── maps/        docker-compose.yml · nginx.conf · umap.conf.example · .env.example · scripts/
+#+end_example
+
+* Setup (per service)
+1. =cp .env.example .env= and fill in your own values.
+2. Replace the placeholders below with yours.
+3. =docker compose up -d=.
+
+** Placeholders
+| Placeholder     | Meaning                                                  |
+|-----------------+----------------------------------------------------------|
+| =${TS_HOST}=    | your Tailscale MagicDNS host, e.g. =host.tailXXXXXX.ts.net= |
+| =${TAILNET_IP}= | the server's tailnet IP (=100.x.y.z=)                    |
+| =${LAN_IP}=     | the server's LAN IP (optional)                           |
+| =SECRET_KEY=    | per-app secret — generate your own (never reuse one)     |
+| =ADMIN_TOKEN=   | Vaultwarden admin hash (optional)                        |
+
+* Security
+- Secrets live only in =.env= files, which are *gitignored* — never committed.
+- Everything is *tailnet-only*; nothing is published to the open internet.
+- Back up each service's data directory — *especially the Vaultwarden vault*.
+- If you fork this, *generate your own* secrets. Don't reuse any example value.
+
+* Notes
+- Tested on Ubuntu Server + Docker. Adapt paths, ports and image versions to your box.
+- This is a reference for how I run things, tailored to my setup — not a product.
+  Issues / PRs welcome.
