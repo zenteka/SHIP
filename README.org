@@ -1,20 +1,34 @@
-#+TITLE: Sovereign Homelab
+#+TITLE: SHIP — Self-Hosted Independent Platform
 #+OPTIONS: toc:nil num:nil
 
-A personal, self-hosted homelab: a handful of Docker services on an always-on
+Are you new or curious about self-hosted alternatives to everyday
+services? Tired of cloud lock-in? Look no further, build your ship and
+take it with you, wherever you sail.
+
+This is my personal, self-hosted homelab: a handful of Docker services on an always-on
 server, reachable privately over a [[https://tailscale.com][Tailscale]] tailnet.
 Everything runs on my own hardware — no third-party cloud for the services below.
+It is a work-in-progress as I keep expanding my own infrastructure. 
+
+Hit me up on [[https://www.linkedin.com/in/karol-piera-2a4986153/][LinkedIn]] if you want to know more about:
+- hardware setup
+- network/routing setup
+
 
 ⚠️ *This is a sanitized personal reference, not a turnkey product.* Real secrets,
 hostnames and IPs are replaced with placeholders. Copy the =.env.example= files,
 fill in your own values, and adapt to your setup.
 
 * What's here
-| Service       | What it does                                        |
-|---------------+-----------------------------------------------------|
-| AdGuard Home  | Network-wide ad / tracker DNS filtering             |
-| Vaultwarden   | Self-hosted, Bitwarden-compatible password manager  |
-| uMap + tiles  | Self-hosted maps — your pins + your own OSM tiles   |
+| Service      | What it does                                          |
+|--------------+-------------------------------------------------------|
+| AdGuard Home | Network-wide ad / tracker DNS filtering               |
+| Vaultwarden  | Self-hosted, Bitwarden-compatible password manager    |
+| uMap + tiles | Self-hosted maps — your pins + your own OSM tiles     |
+| Immich       | Self-hosted photo & video backup (Google Photos alt.) |
+| Open WebUI   | Web UI for local LLMs via Ollama (optional)           |
+
+Plus *Syncthing* for cross-device folder sync (native, not Docker — see below).
 
 * Architecture
 - Each service is a *Docker Compose* stack on one always-on Linux server.
@@ -22,14 +36,27 @@ fill in your own values, and adapt to your setup.
   web apps are fronted by *Tailscale Serve* for automatic HTTPS (=*.ts.net= certs).
 - *AdGuard Home* is the tailnet's DNS resolver → every device gets filtering,
   anywhere, with no per-device setup.
-- Service data lives on the server as bind-mounts; it is *never* committed to git.
+- Service data lives on the server (bind-mounts or Docker volumes); it is *never* committed to git.
 
 #+begin_example
   your devices ──Tailscale──► server
-                               ├─ AdGuard Home     (DNS :53, tailnet nameserver)
-                               ├─ Vaultwarden      (Tailscale Serve → HTTPS)
-                               └─ uMap + tileserver (nginx → Tailscale Serve → HTTPS)
+                               ├─ AdGuard Home      (DNS :53, tailnet nameserver)
+                               ├─ Vaultwarden       (Tailscale Serve → HTTPS)
+                               ├─ uMap + tileserver  (nginx → Tailscale Serve → HTTPS)
+                               ├─ Immich            (Tailscale Serve → HTTPS)
+                               └─ Open WebUI        (local-LLM UI → native Ollama :11434)
+
+  all devices  ◄──Syncthing──► ~/main   (peer-to-peer folder sync, offline-first — not Docker)
 #+end_example
+
+* Syncthing — device sync
+Not a Docker service: Syncthing runs *natively* and keeps a shared folder (=~/main=)
+in sync across all my devices — peer-to-peer, offline-first, no cloud. (This repo itself
+lives inside that synced folder.)
+
+- Setup script + notes live in =syncthing/=: it installs from the official apt repo,
+  enables the per-user systemd service, and points you at the Web UI on =127.0.0.1:8384=.
+- Device IDs and folder configuration are per-device and *not* committed.
 
 * Layout
 #+begin_example
@@ -37,10 +64,13 @@ fill in your own values, and adapt to your setup.
   ├── README.org
   ├── .gitignore               # keeps secrets + runtime data out of git
   ├── .env.example             # global placeholders (TS_HOST, TAILNET_IP, LAN_IP)
-  └── services/
-      ├── adguard/     docker-compose.yml · README
-      ├── vaultwarden/ docker-compose.yml · .env.example · README
-      └── maps/        docker-compose.yml · nginx.conf · umap.conf.example · .env.example · scripts/
+  ├── services/                # Docker Compose stacks
+  │   ├── adguard/     docker-compose.yml · README
+  │   ├── vaultwarden/ docker-compose.yml · .env.example · README
+  │   ├── umaps/       docker-compose.yml · nginx.conf · umap.conf.example · .env.example · scripts/
+  │   ├── immich/      docker-compose.yml · .env.example
+  │   └── open-webui/  docker-compose.yml · README
+  └── syncthing/               # native (non-Docker) device sync: setup.sh · README
 #+end_example
 
 * Setup (per service)
@@ -67,3 +97,9 @@ fill in your own values, and adapt to your setup.
 - Tested on Ubuntu Server + Docker. Adapt paths, ports and image versions to your box.
 - This is a reference for how I run things, tailored to my setup — not a product.
   Issues / PRs welcome.
+
+* Coming up next
+- Grafana / monitoring
+- Smart hardware integration / monitoring
+
+
