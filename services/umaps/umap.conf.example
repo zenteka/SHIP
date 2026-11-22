@@ -1,0 +1,22 @@
+# uMap local settings — copy to  $UMAP_DATA/umap.conf  and fill in your host.
+# Docs: https://umap-project.readthedocs.io/
+
+# Origins allowed to submit forms — your uMap URL(s). Add every host/port you reach uMap on.
+CSRF_TRUSTED_ORIGINS = [
+    "https://your-host.your-tailnet.ts.net",
+    # "http://your-tailnet-ip:8001",
+    # "http://your-lan-ip:8001",
+]
+
+# Behind Tailscale Serve (which terminates TLS), these can stay False.
+# Set True only if uMap is served over real end-to-end HTTPS.
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False
+
+# AJAX proxy cache dir — must exist and be writable by the app (uid 1000).
+AJAX_PROXY_CACHE_DIR = "/srv/umap/uploads/ajax_cache"
+
+# Default map center + zoom (change to your area; lon/lat in degrees).
+LEAFLET_LONGITUDE = 0.0
+LEAFLET_LATITUDE = 0.0
+LEAFLET_ZOOM = 6
