@@ -1,0 +1,16 @@
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: unless-stopped
+    environment:
+      # MUST match the HTTPS URL you reach it on (Tailscale Serve on port 8443 — see README).
+      DOMAIN: ${TS_HOST}
+      # Allow creating your account on first run; flip to "false" + restart once your account exists.
+      SIGNUPS_ALLOWED: "false"
+      # Optional admin panel at /admin — paste an Argon2 hash here (see README) to enable, else leave unset.
+      # ADMIN_TOKEN: "<argon2-hash>"
+    volumes:
+      - ${VAULT_DATA}:/data        # YOUR VAULT lives here — back this up (irreplaceable)
+    ports:
+      - "127.0.0.1:8084:80"                          # localhost only; Tailscale Serve fronts it with HTTPS
