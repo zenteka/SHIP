@@ -10,6 +10,7 @@
 # ── Service runtime data (lives on the server, not in git) ──
 **/data/
 **/db/
+**/postgres/
 **/uploads/
 **/statics/
 **/work/
@@ -21,3 +22,9 @@
 # ── Misc ──
 *.log
 .DS_Store
+
+# ── Emacs ──
+*~
+\#*\#
+.\#*
+*.elc
