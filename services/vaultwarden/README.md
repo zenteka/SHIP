@@ -12,17 +12,17 @@ sudo docker compose up -d
 ## 2. Put it behind HTTPS (Tailscale Serve, extra port alongside uMap)
 ```bash
 sudo tailscale serve --bg --https=8443 8084
-sudo tailscale serve status        # should show https://alia.taile72267.ts.net:8443 -> 127.0.0.1:8084
+sudo tailscale serve status        # should show https://${TS_HOST}:8443 -> 127.0.0.1:8084
 ```
 (uMap stays on 443; Vaultwarden is on 8443. Both get the *.ts.net cert.)
 
 ## 3. Create your account, then LOCK IT DOWN
-1. Open **https://alia.taile72267.ts.net:8443** → **Create account** (strong, unique master password — this one you must remember).
+1. Open **https://${TS_HOST}:8443** → **Create account** (strong, unique master password — this one you must remember).
 2. Then disable new signups: edit `docker-compose.yml` → `SIGNUPS_ALLOWED: "false"` → `sudo docker compose up -d`.
    (Re-enable briefly later if you add family accounts.)
 
 ## 4. Connect your clients
-Install the **Bitwarden** app/extension (browser, iOS, Android, desktop) → before logging in, tap **Settings → Server URL** → `https://alia.taile72267.ts.net:8443` → then log in.
+Install the **Bitwarden** app/extension (browser, iOS, Android, desktop) → before logging in, tap **Settings → Server URL** → `https://${TS_HOST}:8443` → then log in.
 - ⚠️ Clients reach it only **on the tailnet** (it's a *.ts.net URL). Keep **Tailscale running in the background** on your phone so the vault is always reachable. (Do NOT expose it publicly via Funnel — keep the vault tailnet-only.)
 
 ## 5. Optional — admin panel (/admin)
