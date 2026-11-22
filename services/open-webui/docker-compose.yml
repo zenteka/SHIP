@@ -1,0 +1,26 @@
+name: open-webui
+
+# Open WebUI — a web frontend for local LLMs (Ollama).
+# Reproduces the original ad-hoc `docker run` as compose. See README.md.
+#
+# Requires a local Ollama reachable on the host at localhost:11434
+# (on alia: native systemd service, OLLAMA_HOST=0.0.0.0:11434).
+
+services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    restart: always
+    # Host network so the container reaches the host's native Ollama on localhost,
+    # and serves the UI directly on host :8080 (do NOT add a `ports:` block with this).
+    network_mode: host
+    environment:
+      OLLAMA_BASE_URL: http://localhost:11434
+    volumes:
+      - open-webui:/app/backend/data
+
+volumes:
+  open-webui:
+    # Explicit name = reuse the EXISTING `open-webui` volume created by the old
+    # `docker run` (keeps your users/chats/settings); auto-created on a fresh host.
+    name: open-webui
