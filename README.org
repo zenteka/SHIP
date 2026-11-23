@@ -27,6 +27,7 @@ fill in your own values, and adapt to your setup.
 | uMap + tiles | Self-hosted maps — your pins + your own OSM tiles     |
 | Immich       | Self-hosted photo & video backup (Google Photos alt.) |
 | Open WebUI   | Web UI for local LLMs via Ollama (optional)           |
+| Navidrome    | Self-hosted music streaming (Subsonic API)            |
 
 Plus *Syncthing* for cross-device folder sync (native, not Docker — see below).
 
@@ -44,7 +45,8 @@ Plus *Syncthing* for cross-device folder sync (native, not Docker — see below)
                                ├─ Vaultwarden       (Tailscale Serve → HTTPS)
                                ├─ uMap + tileserver  (nginx → Tailscale Serve → HTTPS)
                                ├─ Immich            (Tailscale Serve → HTTPS)
-                               └─ Open WebUI        (local-LLM UI → native Ollama :11434)
+                               ├─ Open WebUI        (local-LLM UI → native Ollama :11434)
+                               └─ Navidrome         (music streaming → Tailscale Serve → HTTPS)
 
   all devices  ◄──Syncthing──► ~/main   (peer-to-peer folder sync, offline-first — not Docker)
 #+end_example
@@ -69,7 +71,8 @@ lives inside that synced folder.)
   │   ├── vaultwarden/ docker-compose.yml · .env.example · README
   │   ├── umaps/       docker-compose.yml · nginx.conf · umap.conf.example · .env.example · scripts/
   │   ├── immich/      docker-compose.yml · .env.example
-  │   └── open-webui/  docker-compose.yml · README
+  │   ├── open-webui/  docker-compose.yml · README
+  │   └── navidrome/   docker-compose.yml · .env.example · README
   └── syncthing/               # native (non-Docker) device sync: setup.sh · README
 #+end_example
 
