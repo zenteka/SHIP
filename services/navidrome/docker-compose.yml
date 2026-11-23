@@ -1,0 +1,18 @@
+services:
+  navidrome:
+    image: deluan/navidrome:latest
+    container_name: navidrome
+    restart: unless-stopped
+    user: "${PUID}:${PGID}"            # run as your user so it can read the library
+    environment:
+      ND_MUSICFOLDER: /music
+      ND_DATAFOLDER: /data
+      ND_SCANSCHEDULE: 1h              # rescan the library hourly
+      ND_LOGLEVEL: info
+      ND_SESSIONTIMEOUT: 24h
+      # ND_BASEURL: ""                 # set only if served under a subpath
+    volumes:
+      - ${MUSIC_DIR}:/music:ro         # your library — READ-ONLY, outside the repo (HDD)
+      - ${NAVIDROME_DATA}:/data        # Navidrome's own DB + cache (SSD)
+    ports:
+      - "127.0.0.1:4533:4533"          # localhost only; front with Tailscale Serve for HTTPS
